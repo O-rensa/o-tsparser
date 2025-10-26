@@ -1,0 +1,22 @@
+{
+  "name": "o-tsparser",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/O-rensa/o-tsparser#readme",
+  "bugs": {
+    "url": "https://github.com/O-rensa/o-tsparser/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/O-rensa/o-tsparser.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "test",
+    "start": "node ./dist/index.js"
+  }
+}
