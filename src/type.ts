@@ -1,9 +1,7 @@
 export type parserState_t = {
   targetString: string;
   index: number;
-  result: parserStateResult_t;
+  result: string[];
   error: string | null;
   isError: boolean;
 }
-
-export type parserStateResult_t = string | string[] | null;

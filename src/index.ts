@@ -1,6 +1,6 @@
-import type { parserState_t, parserStateResult_t } from "./type.js";
+import type { parserState_t } from "./type.js";
 
-const updateParserState = (state: parserState_t, index: number, result: parserStateResult_t): parserState_t => {
+const updateParserState = (state: parserState_t, index: number, result: string[]): parserState_t => {
   return {
     ...state,
     index,
@@ -8,7 +8,7 @@ const updateParserState = (state: parserState_t, index: number, result: parserSt
   }
 };
 
-const updateParserResult = (state: parserState_t, result: parserStateResult_t): parserState_t => {
+const updateParserResult = (state: parserState_t, result: string[]): parserState_t => {
   return {
     ...state,
     result,
@@ -37,7 +37,7 @@ export const str = (s: string) => (parserState: parserState_t): parserState_t =>
   }
 
   if (targetString.slice(index).startsWith(s)) {
-    return updateParserState(parserState, index + s.length, s);
+    return updateParserState(parserState, index + s.length, [s]);
   }
 
   return updateParserError(parserState, `str: Tried to match "${s}", but got "${targetString.slice(index, index + 10)}".`);
@@ -52,9 +52,7 @@ export const sequenceOf = (parsers: ((state: parserState_t) => parserState_t)[])
   let nextState: parserState_t = parserState;
   parsers.forEach((p) => {
     nextState = p(nextState);
-    if (typeof nextState.result == "string") {
-      results.push(nextState.result);
-    }
+    results.push(...nextState.result);
   }); 
 
   return updateParserResult(nextState, results);
@@ -64,7 +62,7 @@ export const run = (parser: (state: parserState_t) => parserState_t, targetStrin
   const param: parserState_t = {
     targetString: targetString,
     index: 0,
-    result: null,
+    result: [],
     error: null,
     isError: false,
   }
