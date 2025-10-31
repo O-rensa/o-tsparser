@@ -1,3 +1,4 @@
+import Parser from "./parser.js";
 import type { parserState_t } from "./type.js";
 
 const updateParserState = (state: parserState_t, index: number, result: string[]): parserState_t => {
@@ -22,25 +23,6 @@ const updateParserError = (state: parserState_t, errMsg: string): parserState_t 
     error: errMsg,
   }
 } 
-
-class Parser {
-  parserStateTransformerFn: (state: parserState_t) => parserState_t;
-  constructor(parserStateTransformerFn: (state: parserState_t) => parserState_t) {
-    this.parserStateTransformerFn = parserStateTransformerFn;
-  }
-
-  run(targetString: string): parserState_t {
-    const initialState: parserState_t = {
-      targetString: targetString,
-      index: 0,
-      result: [],
-      isError: false,
-      error: null, 
-    }
-
-    return this.parserStateTransformerFn(initialState);
-  }
-}
 
 export const str = (s: string) => new Parser((parserState: parserState_t): parserState_t => {
   const { targetString, index, isError } = parserState;
