@@ -23,7 +23,26 @@ const updateParserError = (state: parserState_t, errMsg: string): parserState_t 
   }
 } 
 
-export const str = (s: string) => (parserState: parserState_t): parserState_t => {
+class Parser {
+  parserStateTransformerFn: (state: parserState_t) => parserState_t;
+  constructor(parserStateTransformerFn: (state: parserState_t) => parserState_t) {
+    this.parserStateTransformerFn = parserStateTransformerFn;
+  }
+
+  run(targetString: string): parserState_t {
+    const initialState: parserState_t = {
+      targetString: targetString,
+      index: 0,
+      result: [],
+      isError: false,
+      error: null, 
+    }
+
+    return this.parserStateTransformerFn(initialState);
+  }
+}
+
+export const str = (s: string) => new Parser((parserState: parserState_t): parserState_t => {
   const { targetString, index, isError } = parserState;
 
   if (isError) {
@@ -41,9 +60,9 @@ export const str = (s: string) => (parserState: parserState_t): parserState_t =>
   }
 
   return updateParserError(parserState, `str: Tried to match "${s}", but got "${targetString.slice(index, index + 10)}".`);
-}
+});
 
-export const sequenceOf = (parsers: ((state: parserState_t) => parserState_t)[]) => (parserState: parserState_t): parserState_t => {
+export const sequenceOf = (parsers: Parser[]) => new Parser((parserState: parserState_t): parserState_t => {
   if (parserState.isError) {
     return parserState;
   }
@@ -51,32 +70,20 @@ export const sequenceOf = (parsers: ((state: parserState_t) => parserState_t)[])
   const results: string[] = [];
   let nextState: parserState_t = parserState;
   parsers.forEach((p) => {
-    nextState = p(nextState);
+    nextState = p.parserStateTransformerFn(nextState);
     results.push(...nextState.result);
   }); 
 
   return updateParserResult(nextState, results);
-}
-
-export const run = (parser: (state: parserState_t) => parserState_t, targetString: string): parserState_t => {
-  const param: parserState_t = {
-    targetString: targetString,
-    index: 0,
-    result: [],
-    error: null,
-    isError: false,
-  }
-  return parser(param);
-}
+});
 
 const parser = str("hello there!");
 
-console.log(run(parser, ""));
+console.log(parser.run("hello there!"));
 
 const parserSequnce = sequenceOf([
   str("hello there!"),
   str("goodbye there!"),
 ]);
 
-
-console.log(run(parserSequnce, "hello there!goodbye there!"));
+console.log(parserSequnce.run(""));
